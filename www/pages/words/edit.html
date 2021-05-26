@@ -1,0 +1,119 @@
+<template>
+  <div class="page" data-name="new">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">戻る</span>
+          </a>
+        </div>
+        <div class="title">単語の編集</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="row">
+        <div class="col-auto text-align-center">
+          <div class="block-title">単語を編集してください</div>
+          <div class="block">
+            <p>単語の追加情報として画像も登録できます</p>
+          </div>
+        </div>
+        <div class="col-auto">
+          <div class="list no-hairlines-md">
+            <ul>
+              <li class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-input-wrap">
+                    <input type="text" name="original" value="{{word.original}}">
+                  </div>
+                </div>
+              </li>
+              <li class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-input-wrap">
+                    <input type="text" name="japanese" value="{{word.japanese}}">
+                  </div>
+                </div>
+              </li>
+              <li class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-input-wrap">
+                    <input type="file" accept="image/*" name="upload" @change="uploadImage" />
+                  </div>
+                </div>
+              </li>
+              <li class="item-content show-image">
+                <img src="{{ word.image }}" class="image" />
+                <input type="hidden" name="image" value="{{word.image}}" />
+              </li>
+            </ul>
+          </div>
+          <a href="#" class="item-link list-button" @click="updateWord">
+            <div class="item-inner">
+              <div class="item-title">単語を更新する</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    methods: {
+      // 単語データを更新する処理
+      updateWord: async function(e) {
+        await this.word
+          .set('original', $$('[name="original"]').val())
+          .set('japanese', $$('[name="japanese"]').val())
+          .set('image', $$('[name="image"]').val())
+          .update();
+        // 前の画面に戻る
+        this.$router.back();
+      },
+      // 写真をアップロードして、そのファイル名をhiddenに適用する処理
+      uploadImage: async function(e) {
+        // NCMBで写真アップロード
+        const {ncmb} = this.$app.data;
+        const d = new Date();
+        const file = e.target.files[0];
+        // 写真名に重複が発生しないように現在時刻をファイル名に追加
+        const name = `${d.getTime()}_${file.name}`;
+        // ファイルアップロード
+        await ncmb.File.upload(name, file);
+        // 画像データを取得（ローカルファイルのもの）
+        const image = await this.$app.methods.loadImage(file);
+        // 取得した画像データを表示
+        $$('.image').attr('src', image);
+        $$('[name="image"]').val(name);
+        $$('.show-image').show();
+      }
+    },
+    on: {
+      pageBeforeIn: async function(e, page) {
+        // 最初にimgタグを隠す
+        $$('.show-image').hide();
+        // NCMBから画像データをBlobで取得
+        const { ncmb } = this.$app.data;
+        if (!this.word.image) return;
+        const file = await ncmb.File.download(this.word.image, 'blob');
+        // BlobをdataURIに変換
+        const image = await this.$app.methods.loadImage(file);
+        // 変換結果をimgタグに反映
+        $$('.image').attr('src', image);
+        // imgタグを表示
+        $$('.show-image').show();
+      }
+    },
+  };
+</script>
+
+<style>
+  .image {
+    object-fit: cover;
+    width: 40vw;
+    height: 40vw;
+  }
+</style>

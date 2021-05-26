@@ -1,0 +1,102 @@
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="title">単語帳一覧</div>
+        <div class="right">
+          <a href="/word_books/new" class="item-link list-button">
+            <i class="f7-icons">plus</i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="row text-align-center">
+        <div class="col-auto">
+          <div class="block-title">学習する単語帳を選択してください</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col text-align-center" id="no_word_book">
+          <div>まだ単語帳がありません</div>
+          <a href="/word_books/new" class="item-link list-button">
+            <div class="item-inner">
+              <div class="item-title">単語帳を作成する</div>
+            </div>
+          </a>
+        </div>
+        <div id="exist_word_book" class="col-auto">
+          <div class="list">
+            <ul>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    methods: {
+      // 選択された単語帳に移動する処理
+      showWordBook: function(e) {
+        // 選択された単語帳のobjectIdを取得
+        const objectId = $$(e.target).parents('a').data('object-id');
+        if (!objectId) return;
+        // objectIdで対象の単語帳を特定
+        const wordBook = this.wordBooks.filter(w => w.objectId === objectId)[0];
+        // 単語帳データを次の画面に引き継いで移動
+        this.$router.navigate(
+          `/word_books/show`,
+          {
+            context: { wordBook }
+          }
+        )
+      },
+      // 単語帳一覧を表示
+      showWordBooks: function(wordBooks) {
+        $$('#exist_word_book ul').html(wordBooks.map(wb => {
+          return `<li><a href="#" data-object-id="${wb.objectId}" class="show-word-book">
+            <div class="item-content">
+                <div class="item-media">
+                  <i class="f7-icons">book</i>
+                </div>
+                <div class="item-inner">
+                    <div class="item-title">
+                      ${wb.name}
+                    </div>
+                    <div class="item-after">
+                      ${wb.words_count || 0 }単語
+                    </div>
+                </div>
+            </div>
+          </a></li>`;
+        }).join(''));        
+      },
+      getWordBooks: async function() {
+        const { ncmb } = this.$app.data;
+        const WordBook = ncmb.DataStore('WordBook');
+        return await WordBook.fetchAll();
+      }
+    },
+    on: {
+      pageBeforeIn: async function(e, page) {
+        // 登録されている単語帳を取得
+        this.wordBooks = await this.getWordBooks();
+        // 単語帳の有無で画面の表示を切り分け
+        if (this.wordBooks.length === 0) {
+          $$('#exist_word_book').hide();
+          $$('#no_word_book').show();
+        } else {
+          $$('#no_word_book').hide();
+          $$('#exist_word_book').show();
+          // 単語帳がある場合は画面に表示
+          this.showWordBooks(this.wordBooks);
+          // 表示した単語帳に、単語帳を選択した際のイベントを設定
+          $$('.show-word-book').on('click', this.showWordBook);
+        }
+      },
+    },
+  }
+</script>

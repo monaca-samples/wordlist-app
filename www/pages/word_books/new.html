@@ -1,0 +1,62 @@
+<template>
+  <div class="page" data-name="new">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">戻る</span>
+          </a>
+        </div>
+        <div class="title">単語帳の作成</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="row">
+        <div class="col-auto text-align-center">
+          <div class="block-title">単語帳の名前を決めてください</div>
+        </div>
+        <div class="col-auto">
+          <div class="list">
+            <ul>
+              <li class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">単語帳の名前</div>
+                  <div class="item-input-wrap">
+                    <input type="text" name="name">
+                    <span class="input-clear-button"></span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <a href="#" class="item-link list-button" @click="saveWordBook">
+            <div class="item-inner">
+              <div class="item-title">単語帳を作成する</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    methods: {
+      // 単語帳を作成する処理
+      saveWordBook: async function(e) {
+        const { ncmb } = this.$app.data;
+        // 単語帳のインスタンスを作成
+        const wordBook = new (ncmb.DataStore('WordBook'));
+        // 必要なデータをセットして保存
+        await wordBook
+          .set('name', $$('[name="name"]').val())
+          .set('words_count', 0)
+          .save();
+        // 前の画面に戻る
+        this.$router.back();
+      },
+    },
+  };
+</script>

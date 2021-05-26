@@ -1,0 +1,190 @@
+<template>
+  <div class="page" data-name="new">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">戻る</span>
+          </a>
+        </div>
+        <div class="title">{{ wordBook.name }}</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="row">
+        <div class="col-auto text-align-center">
+          <div class="block-title">タップで回答が表示されます</div>
+          <div class="block">
+            <p>スワイプで次の単語を表示します</p>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-auto">
+          <span data-progress="0" class="progressbar" id="inline-progressbar"></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-auto">
+          <div class="swiper-container swiper-init">
+            <div class="swiper-wrapper">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    methods: {
+      // 画像をまとめて読み込む処理
+      showImage: async function(fileName) {
+        // ファイル名がなければ無視
+        if (!fileName) return '';
+        // NCMBで画像データをダウンロード（Blobで）
+        const { ncmb } = this.$app.data;
+        const file = await ncmb.File.download(fileName, 'blob');
+        // BlobをFileReader APIでdataURI形式に変換
+        const image = await this.$app.methods.loadImage(file);
+        // 画像が取得できたら表示用のHTMLを返す
+        if (!image) return '';
+        return `<div class="show-image">
+          <img src="${image}" class="image" />
+        </div>`;
+      },
+      // 単語を表示
+      showWords: async function() {
+        // 画像は非同期で読み込むので、あらかじめすべて読み込んでおく
+        const promises = [];
+        this.words.forEach((w, index) => {
+          promises.push(this.showImage(w.image));
+        });
+        const images = await Promise.all(promises);
+
+        // 単語表示用のスライドを作成
+        const slides = this.words.map((w, i) => `
+          <div class="swiper-slide">
+            <div class="card card-outline">
+              <div class="card-header">${w.original}</div>
+              <div class="card-content card-content-padding word">
+                <div class="row">
+                  <div class="col-10 previous">
+                    <div>&nbsp;</div>
+                  </div>
+                  <div class="col-80 margin-vertical content">
+                    ${ images[i] }
+                    <a href="#" class="item-link list-button open">
+                      <div class="item-inner">
+                        <div class="item-title">答えをチェック</div>
+                      </div>
+                    </a>
+                    <div style="display:none" class="answer">
+                      <div class="text">${w.japanese}</div>
+                      <a href="#" class="item-link list-button remember" data-object-id="${w.objectId}">
+                        <div class="item-inner">
+                          <div class="item-title">覚えた</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-10 next">
+                    <div>&nbsp;</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`
+        );
+        // 作成したスライドをスワイプ用ライブラリに追加
+        this.swiper.appendSlide(slides);
+      },
+      // トレーニングの進捗用プログレスバーを更新する処理
+      updateProgress: function(index, length) {
+        this.$f7.progressbar.set('#inline-progressbar', parseInt(index/length * 100));
+      },
+      // 前に戻る処理
+      movePrevious: function(e) {
+        // 最初なら何もしない
+        if (this.swiper.realIndex === 0) return;
+        // 前のスライドに移動
+        this.swiper.slidePrev();
+        // プログレスバーを更新
+        this.updateProgress(this.swiper.realIndex - 1, swiper.slides.length);
+      },
+      // 次に進む処理
+      moveNext: function(e) {
+        // 最後なら何もしない
+        if (this.swiper.realIndex === this.words.length) return;
+        // 次のスライドに移動
+        this.swiper.slideNext();
+        // プログレスバーを更新
+        this.updateProgress(this.swiper.realIndex + 1, this.swiper.slides.length);
+      },
+      // 回答を表示する処理
+      showAnswer: function(e) {
+        $$(e.target).hide();
+        $$(e.target).parents('.content').find('.answer').show();
+      },
+      // 記憶したボタンを押した際の処理
+      changeToRemember: async function(e) {
+        // 対象になる単語データを取得
+        const objectId = $$(e.target).parents('a').data('object-id');
+        const word = this.words.filter(w => w.objectId === objectId)[0];
+        // 記憶完了のフラグを立てる
+        await word.set('remember', true).update();
+        // 単語数を更新
+        this.$app.methods.updateWordCount(this.wordBook);
+        // スライドを削除
+        this.swiper.removeSlide(this.swiper.activeIndex);
+      }
+    },
+    async mounted() {
+      // 学習する単語一覧を取得
+      this.words = await this.$app.methods.getWords(this.wordBook);
+      // スワイプ用ライブラリを準備
+      this.swiper = this.$app.swiper.create('.swiper-container', {});
+      // 単語を表示
+      await this.showWords();
+      // 前に戻る処理
+      $$('.previous').on('click', this.movePrevious);
+      // 次に進む処理
+      $$('.next').on('click', this.moveNext);
+      // 回答を表示する処理
+      $$('.open').on('click', this.showAnswer);
+      // 記憶したボタンを押した際の処理
+      $$('.remember').on('click', this.changeToRemember);
+    },
+  };
+</script>
+
+<style>
+  .word {
+    height: 60vw;
+    vertical-align: middle;
+    align-items: center;
+  }
+  .word .content {
+    height: 60vw;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 80%;
+  }
+  .word .answer .text {
+    font-size: 30px;
+  }
+  .word .next, .word .previous {
+    height: 60vw;
+    font-size: 40px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .show-image img {
+    object-fit: cover;
+    width: 20vw;
+    height: 20vw;
+  }
+</style>

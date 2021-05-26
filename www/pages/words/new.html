@@ -1,0 +1,85 @@
+<template>
+  <div class="page" data-name="new">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">戻る</span>
+          </a>
+        </div>
+        <div class="title">単語の登録</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="row">
+        <div class="col-auto text-align-center">
+          <div class="block-title">単語とその訳をカンマ区切りで入力</div>
+          <div class="block">
+            <p>単語は改行を使って複数登録できます</p>
+          </div>
+        </div>
+        <div class="col-auto">
+          <div class="list">
+            <ul>
+              <li class="item-content item-input">
+                <textarea id="words" class="resizable" placeholder="Apple,リンゴ"></textarea>
+              </li>
+            </ul>
+          </div>
+          <a href="#" class="item-link list-button" @click="saveWord">
+            <div class="item-inner">
+              <div class="item-title">単語を登録する</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    methods: {
+      saveWord: async function(e) {
+        const { ncmb } = this.$app.data;
+        const ary = $$('#words').val()
+          .split(/\r\n|\n|\r/)
+          .filter(s => s !== '');
+        // エラーチェック
+        if (ary.length === 0) {
+          alert('単語がありません');
+          return;
+        }
+        const relation = new ncmb.Relation;
+        const Word = ncmb.DataStore('Word');
+        // 行毎に処理
+        ary.forEach((str, i) => {
+          // エラーチェック
+          const words = str.split(',');
+          if (words.length !== 2) {
+            alert(`内容が不正です (${i + 1}行目。${str})`);
+            return;
+          }
+          // 単語データの作成
+          const word = new Word;
+          word
+            .set('remember', false)
+            .set('original', words[0])
+            .set('japanese', words[1]);
+          // リレーションに追加
+          relation.add(word);
+        });
+        // 単語一覧のデータを紐付けで単語帳を保存
+        await this.wordBook
+          .set('words', relation)
+          .update();
+        // 単語数をカウントする共通関数
+        await this.$app.methods
+          .updateWordCount(this.wordBook);
+        // 前の画面に戻る
+        this.$router.back();
+      },
+    },
+  };
+</script>
