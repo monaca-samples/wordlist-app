@@ -72,7 +72,7 @@
               <div class="card-content card-content-padding word">
                 <div class="row">
                   <div class="col-10 previous">
-                    <div>&nbsp;</div>
+                    <div>◀︎</div>
                   </div>
                   <div class="col-80 margin-vertical content">
                     ${ images[i] }
@@ -91,7 +91,7 @@
                     </div>
                   </div>
                   <div class="col-10 next">
-                    <div>&nbsp;</div>
+                    <div>▶︎</div>
                   </div>
                 </div>
               </div>
@@ -112,7 +112,7 @@
         // 前のスライドに移動
         this.swiper.slidePrev();
         // プログレスバーを更新
-        this.updateProgress(this.swiper.realIndex - 1, swiper.slides.length);
+        this.updateProgress(this.swiper.realIndex - 1, this.swiper.slides.length);
       },
       // 次に進む処理
       moveNext: function(e) {
