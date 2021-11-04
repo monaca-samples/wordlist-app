@@ -28,7 +28,7 @@
       </div>
       <div class="row">
         <div class="col-auto">
-          <div class="swiper-container swiper-init">
+          <div class="swiper-container swiper-init" data-speed="400">
             <div class="swiper-wrapper">
             </div>
           </div>
@@ -70,9 +70,9 @@
             <div class="card card-outline">
               <div class="card-header">${w.original}</div>
               <div class="card-content card-content-padding word">
-                <div class="row">
+                <div class="row no-gap">
                   <div class="col-10 previous">
-                    <div>◀︎</div>
+                    <div>${ i == 0 ? '':'◀︎' }</div>
                   </div>
                   <div class="col-80 margin-vertical content">
                     ${ images[i] }
@@ -91,7 +91,7 @@
                     </div>
                   </div>
                   <div class="col-10 next">
-                    <div>▶︎</div>
+                    <div>${ i == this.words.length - 1 ? '': '▶︎' }</div>
                   </div>
                 </div>
               </div>
@@ -100,6 +100,7 @@
         );
         // 作成したスライドをスワイプ用ライブラリに追加
         this.swiper.appendSlide(slides);
+        this.updateProgress(this.swiper.realIndex+1, this.swiper.slides.length);
       },
       // トレーニングの進捗用プログレスバーを更新する処理
       updateProgress: function(index, length) {
@@ -112,7 +113,7 @@
         // 前のスライドに移動
         this.swiper.slidePrev();
         // プログレスバーを更新
-        this.updateProgress(this.swiper.realIndex - 1, this.swiper.slides.length);
+        this.updateProgress(this.swiper.realIndex+1, this.swiper.slides.length);
       },
       // 次に進む処理
       moveNext: function(e) {
@@ -121,7 +122,7 @@
         // 次のスライドに移動
         this.swiper.slideNext();
         // プログレスバーを更新
-        this.updateProgress(this.swiper.realIndex + 1, this.swiper.slides.length);
+        this.updateProgress(this.swiper.realIndex+1, this.swiper.slides.length);
       },
       // 回答を表示する処理
       showAnswer: function(e) {
@@ -145,7 +146,9 @@
       // 学習する単語一覧を取得
       this.words = await this.$app.methods.getWords(this.wordBook);
       // スワイプ用ライブラリを準備
-      this.swiper = this.$app.swiper.create('.swiper-container', {});
+      this.swiper = this.$app.swiper.get('.swiper-container');
+      // this.swiper = this.$app.swiper.create('.swiper-container', {});
+
       // 単語を表示
       await this.showWords();
       // 前に戻る処理
