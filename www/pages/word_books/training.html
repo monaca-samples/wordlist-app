@@ -149,6 +149,11 @@
       this.swiper = this.$app.swiper.get('.swiper-container');
       // this.swiper = this.$app.swiper.create('.swiper-container', {});
 
+      this.swiper.on('slideChange', () => {
+        this.updateProgress(this.swiper.realIndex+1, this.swiper.slides.length);
+      });
+
+
       // 単語を表示
       await this.showWords();
       // 前に戻る処理
