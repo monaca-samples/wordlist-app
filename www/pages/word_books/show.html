@@ -11,7 +11,7 @@
         </div>
         <div class="title">{{ wordBook.name }}</div>
         <div class="right">
-          <a href="/word_books/new" class="item-link list-button">
+          <a href="#" class="item-link list-button new-word">
             <i class="f7-icons">plus</i>
           </a>
         </div>
@@ -148,6 +148,15 @@
           $$('.swipeout-delete').on('click', this.deleteWord);
           $$('.show_word').on('click', this.showWord);
         }
+        $$('.new-word').on('click', () => {
+          // 単語帳データを次の画面に引き継いで移動
+          this.$router.navigate(
+            `/word_books/${this.wordBook.objectId}/words/new`,
+            {
+              context: { wordBook: this.wordBook }
+            }
+          )
+        });
       }
     },
   };
