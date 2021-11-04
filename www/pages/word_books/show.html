@@ -149,7 +149,6 @@
           $$('.show_word').on('click', this.showWord);
         }
         $$('.new-word').on('click', () => {
-          const word = this.words.filter(w => w.objectId === objectId)[0];
           // 単語帳データを次の画面に引き継いで移動
           this.$router.navigate(
             `/word_books/${this.wordBook.objectId}/words/new`,
