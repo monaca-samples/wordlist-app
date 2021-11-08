@@ -1,5 +1,3 @@
-const applicationKey = '1f394bd4d2a0a80a45f0c5a86fea448b6b36d5a795ad2ce90ddb6ff7ad136fb2';
-const clientKey = 'cdc44afd241a213a917f35d58344672ad60e72666bbbd7aa44c82172ea4fa398';
 const ncmb = new NCMB(applicationKey, clientKey);
 
 const $$ = Dom7;
@@ -38,12 +36,11 @@ const app = new Framework7({
         .update();
     },
     getWords: async function(wordBook) {
-      const Word = ncmb.DataStore('Word');
-      return await Word
-        .relatedTo(wordBook, 'words')
-        .equalTo('remember', false)
-        .limit(1000)
-        .fetchAll();
+      const words = wordBook.words;
+      if (words == null) {
+        return [];
+      }
+      return words;
     }
   },
   // App routes

@@ -1,0 +1,7 @@
+const applicationKey = '';
+const clientKey = '';
+
+const firebaseApiKey = '';
+const firebaseAuthDomain = '';
+const firebaseProjectId = '';
+

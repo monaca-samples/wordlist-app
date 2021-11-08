@@ -44,3 +44,4 @@ Thumbs.db
 typings/
 node_modules
 package-lock.json
+www/js/const.js

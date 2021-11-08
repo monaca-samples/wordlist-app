@@ -30,10 +30,26 @@
   <script src="components/loader.js"></script>
   <link rel="stylesheet" href="components/loader.css">
 
+  <script src="js/const.js"></script>
+  <!-- Firebase Library -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
+  <script>
+    // Initialize Cloud Firestore through Firebase
+    firebase.initializeApp({
+      apiKey: firebaseApiKey,
+      authDomain: firebaseAuthDomain,
+      projectId: firebaseProjectId
+    });
+
+    var db = firebase.firestore();
+
+  </script>
 
 </head>
 <body>
+
   <div id="app">
     <div class="views safe-areas">
       <div id="view-home" class="view view-main view-init" data-name="home" data-url="/home/">
@@ -44,22 +60,6 @@
   <!-- Framework7 library -->
   <script src="framework7/js/framework7.bundle.min.js"></script>
   
-  <!-- Firebase Library -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-  <script>
-    // Initialize Cloud Firestore through Firebase
-    firebase.initializeApp({
-      apiKey: 'AIzaSyCb1H6tbDu8FQRSBNn3qTN-A0q8am-bXJo',
-      authDomain: 'fir-db-app-42b5e.firebaseapp.com',
-      projectId: 'fir-db-app-42b5e'
-    });
-
-    var db = firebase.firestore();
-
-  </script>
-    
   <!-- App routes -->
   <script src="js/routes.js"></script>
   <!-- App scripts -->

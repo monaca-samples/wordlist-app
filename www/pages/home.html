@@ -43,9 +43,10 @@
       showWordBook: function(e) {
         // 選択された単語帳のobjectIdを取得
         const objectId = $$(e.target).parents('a').data('object-id');
+        console.log(objectId)
         if (!objectId) return;
         // objectIdで対象の単語帳を特定
-        const wordBook = this.wordBooks.filter(w => w.objectId === objectId)[0];
+        const wordBook = this.wordBooks.filter(w => w.id === objectId)[0];
         // 単語帳データを次の画面に引き継いで移動
         this.$router.navigate(
           `/word_books/show`,
@@ -57,7 +58,7 @@
       // 単語帳一覧を表示
       showWordBooks: function(wordBooks) {
         $$('#exist_word_book ul').html(wordBooks.map(wb => {
-          return `<li><a href="#" data-object-id="${wb.objectId}" class="show-word-book">
+          return `<li><a href="#" data-object-id="${wb.id}" class="show-word-book">
             <div class="item-content">
                 <div class="item-media">
                   <i class="f7-icons">book</i>
@@ -73,23 +74,22 @@
             </div>
           </a></li>`;
         }).join(''));        
-      },
-      getWordBooks: async function() {
-        const { ncmb } = this.$app.data;
-        const WordBook = ncmb.DataStore('WordBook');
-        return await WordBook.fetchAll();
       }
+      // getWordBooks: async function() {
+      //   const { ncmb } = this.$app.data;
+      //   const WordBook = ncmb.DataStore('WordBook');
+      //   return await WordBook.fetchAll();
+      // }
     },
     on: {
       pageBeforeIn: async function(e, page) {
-        db.collection("WordBook").get().then((querySnapshot) => {
+        db.collection("WordBook").get().then((querySnapshot) => {          
           let wordBooks = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             wordBooks.push({
               id: doc.id,
-              name: data.name,
-              word_count: data.work_count
+              ...data
             });
           });
           this.wordBooks = wordBooks;
@@ -106,20 +106,6 @@
           }
         });
 
-        // // 登録されている単語帳を取得
-        // this.wordBooks = await this.getWordBooks();
-        // // 単語帳の有無で画面の表示を切り分け
-        // if (this.wordBooks.length === 0) {
-        //   $$('#exist_word_book').hide();
-        //   $$('#no_word_book').show();
-        // } else {
-        //   $$('#no_word_book').hide();
-        //   $$('#exist_word_book').show();
-        //   // 単語帳がある場合は画面に表示
-        //   this.showWordBooks(this.wordBooks);
-        //   // 表示した単語帳に、単語帳を選択した際のイベントを設定
-        //   $$('.show-word-book').on('click', this.showWordBook);
-        // }
       },
     },
   }

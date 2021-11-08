@@ -42,7 +42,7 @@
   return {
     methods: {
       saveWord: async function(e) {
-        const { ncmb } = this.$app.data;
+        // const { ncmb } = this.$app.data;
         const ary = $$('#words').val()
           .split(/\r\n|\n|\r/)
           .filter(s => s !== '');
@@ -51,8 +51,8 @@
           alert('単語がありません');
           return;
         }
-        const relation = new ncmb.Relation;
-        const Word = ncmb.DataStore('Word');
+        // const relation = new ncmb.Relation;
+        // const Word = ncmb.DataStore('Word');
         // 行毎に処理
         ary.forEach((str, i) => {
           // エラーチェック
@@ -62,23 +62,34 @@
             return;
           }
           // 単語データの作成
-          const word = new Word;
-          word
-            .set('remember', false)
-            .set('original', words[0])
-            .set('japanese', words[1]);
-          // リレーションに追加
-          relation.add(word);
+          // const word = new Word;
+          const word = {
+            'remember': false,
+            'original': words[0],
+            'japanese': words[1]
+          }
+          this.wordBook.words.push(word);
         });
         // 単語一覧のデータを紐付けで単語帳を保存
-        await this.wordBook
-          .set('words', relation)
-          .update();
         // 単語数をカウントする共通関数
-        await this.$app.methods
-          .updateWordCount(this.wordBook);
+        this.wordBook.words_count = this.wordBook.words.length;
+        try {
+          await db.collection('WordBook').doc(this.wordBook.id)
+          .update({
+            'words': this.wordBook.words,
+            'words_count': this.wordBook.words_count
+          });
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
+
         // 前の画面に戻る
-        this.$router.back();
+        console.log(this.wordBook);
+        this.$router.back(
+          {
+            context: { wordBook: this.wordBook }
+          }
+        );
       },
     },
   };

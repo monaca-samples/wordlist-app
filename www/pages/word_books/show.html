@@ -55,7 +55,7 @@
       // トレーニング画面に移動する処理
       startTraining: function() {
         this.$router.navigate(
-          `/word_books/${ this.wordBook.objectId }/training`,
+          `/word_books/${ this.wordBook.id }/training`,
           {
             context: {
               wordBook: this.wordBook
@@ -75,26 +75,32 @@
         saveAs(blob, "words.csv");
       },
       // 単語を削除する処理
-      deleteWord: function(e) {
+      deleteWord: async function(e) {
         // 削除対象のobjectIdを取得
         const objectId = $$(e.target).data('object-id');
-        // 削除対象の単語データを取得
-        const word = this.words.filter(w => w.objectId === objectId)[0];
-        // 単語があれば削除実行
-        if (word) word.delete();
+        this.wordBook.words.splice(objectId,1);
         // 単語数をカウントする共通関数を実行
-        this.$app.methods.updateWordCount(this.wordBook);
+        try {
+          await this.db.collection('WordBook').doc(this.wordBook.id)
+            .update({
+              'words': this.wordBook.words,
+              'words_count': this.wordBook.words.length
+            });
+          // await this.$app.methods.updateWordCount(this.wordBook);
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
       },
       // 単語画面に移動する処理
       showWord: function(e) {
         // 対象になる単語データを取得
         const objectId = $$(e.target).parents('a').data('object-id');
-        const word = this.words.filter(w => w.objectId === objectId)[0];
+        const word = this.wordBook.words.filter((w,index) => index === objectId)[0];
         // 単語がなければ終了
         if (!word) return;
         // 単語があれば移動
         this.$router.navigate(
-          `/word_books/${this.wordBook.objectId}/words/${word.objectId}/edit`,
+          `/word_books/${this.wordBook.id}/words/${word.id}/edit`,
           {
             context: {
               wordBook: this.wordBook,
@@ -105,10 +111,10 @@
       },
       // 単語一覧を表示する
       showWords: function(words) {
-        $$('#exist_word ul').html(words.map(w => {
+        $$('#exist_word ul').html(words.map((w,index) => {
           return `<li class="swipeout">
             <div class="swipeout-content">
-              <a href="#" data-object-id="${w.objectId}" class="show_word">
+              <a href="#" data-object-id="${index}" class="show_word">
                 <div class="item-content">
                     <div class="item-media">
                       <i class="f7-icons">textformat</i>
@@ -125,7 +131,7 @@
               </a>
             </div>
             <div class="swipeout-actions-left">
-              <a href="#" class="swipeout-delete" data-object-id="${w.objectId}">Delete</a>
+              <a href="#" class="swipeout-delete" data-object-id="${index}">Delete</a>
             </div>
           </li>`;
         }).join(''));
@@ -133,17 +139,18 @@
     },
     on: {
       pageBeforeIn: async function(e, page) {
+        this.db = db;
         // 単語一覧を取得
-        this.words = await this.$app.methods.getWords(this.wordBook);
+        const words = this.wordBook.words;
         // 単語の有無で画面の表示を切り替え
-        if (this.words.length === 0) {
+        if (words.length === 0) {
           $$('#exist_word').hide();
           $$('#no_word').show();
         } else {
           $$('#exist_word').show();
           $$('#no_word').hide();
           // 単語があれば画面に表示
-          this.showWords(this.words);
+          this.showWords(words);
           // 表示した要素に対するイベントを設定
           $$('.swipeout-delete').on('click', this.deleteWord);
           $$('.show_word').on('click', this.showWord);
@@ -151,7 +158,7 @@
         $$('.new-word').on('click', () => {
           // 単語帳データを次の画面に引き継いで移動
           this.$router.navigate(
-            `/word_books/${this.wordBook.objectId}/words/new`,
+            `/word_books/${this.wordBook.id}/words/new`,
             {
               context: { wordBook: this.wordBook }
             }
