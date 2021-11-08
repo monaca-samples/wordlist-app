@@ -65,30 +65,43 @@
     methods: {
       // 単語データを更新する処理
       updateWord: async function(e) {
-        await this.word
-          .set('original', $$('[name="original"]').val())
-          .set('japanese', $$('[name="japanese"]').val())
-          .set('image', $$('[name="image"]').val())
-          .update();
+        console.log(this.objectId);
+        console.log(this.wordBook.words);
+        this.wordBook.words[this.objectId] = {
+          'original': $$('[name="original"]').val(),
+          'japanese': $$('[name="japanese"]').val(),
+          'image': $$('[name="image"]').val() 
+        };
+        try {
+          await db.collection('WordBook').doc(this.wordBook.id)
+            .update({
+              'words': this.wordBook.words,
+              'words_count': this.wordBook.words.length
+            });
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
+
         // 前の画面に戻る
         this.$router.back();
       },
       // 写真をアップロードして、そのファイル名をhiddenに適用する処理
       uploadImage: async function(e) {
-        // NCMBで写真アップロード
-        const {ncmb} = this.$app.data;
-        const d = new Date();
-        const file = e.target.files[0];
-        // 写真名に重複が発生しないように現在時刻をファイル名に追加
-        const name = `${d.getTime()}_${file.name}`;
-        // ファイルアップロード
-        await ncmb.File.upload(name, file);
-        // 画像データを取得（ローカルファイルのもの）
-        const image = await this.$app.methods.loadImage(file);
-        // 取得した画像データを表示
-        $$('.image').attr('src', image);
-        $$('[name="image"]').val(name);
-        $$('.show-image').show();
+        alert('Not implemented for firebase');
+        // // NCMBで写真アップロード
+        // const {ncmb} = this.$app.data;
+        // const d = new Date();
+        // const file = e.target.files[0];
+        // // 写真名に重複が発生しないように現在時刻をファイル名に追加
+        // const name = `${d.getTime()}_${file.name}`;
+        // // ファイルアップロード
+        // await ncmb.File.upload(name, file);
+        // // 画像データを取得（ローカルファイルのもの）
+        // const image = await this.$app.methods.loadImage(file);
+        // // 取得した画像データを表示
+        // $$('.image').attr('src', image);
+        // $$('[name="image"]').val(name);
+        // $$('.show-image').show();
       }
     },
     on: {
@@ -96,15 +109,15 @@
         // 最初にimgタグを隠す
         $$('.show-image').hide();
         // NCMBから画像データをBlobで取得
-        const { ncmb } = this.$app.data;
+        // const { ncmb } = this.$app.data;
         if (!this.word.image) return;
-        const file = await ncmb.File.download(this.word.image, 'blob');
-        // BlobをdataURIに変換
-        const image = await this.$app.methods.loadImage(file);
-        // 変換結果をimgタグに反映
-        $$('.image').attr('src', image);
-        // imgタグを表示
-        $$('.show-image').show();
+        // const file = await ncmb.File.download(this.word.image, 'blob');
+        // // BlobをdataURIに変換
+        // const image = await this.$app.methods.loadImage(file);
+        // // 変換結果をimgタグに反映
+        // $$('.image').attr('src', image);
+        // // imgタグを表示
+        // $$('.show-image').show();
       }
     },
   };

@@ -72,9 +72,9 @@
               <div class="card-content card-content-padding word">
                 <div class="row no-gap">
                   <div class="col-10 previous">
-                    <div>${ i == 0 ? '':'◀︎' }</div>
+                    <div class="margin-vertical">${ i == 0 ? '':'《' }</div>
                   </div>
-                  <div class="col-80 margin-vertical content">
+                  <div class="col-80 display-flex flex-direction-column justify-content-center content">
                     ${ images[i] }
                     <a href="#" class="item-link list-button open">
                       <div class="item-inner">
@@ -83,15 +83,17 @@
                     </a>
                     <div style="display:none" class="answer">
                       <div class="text">${w.japanese}</div>
+                      <!--
                       <a href="#" class="item-link list-button remember" data-object-id="${w.objectId}">
                         <div class="item-inner">
                           <div class="item-title">覚えた</div>
                         </div>
                       </a>
+                      -->
                     </div>
                   </div>
                   <div class="col-10 next">
-                    <div>${ i == this.words.length - 1 ? '': '▶︎' }</div>
+                    <div class="margin-vertical">${ i == this.words.length - 1 ? '': '》' }</div>
                   </div>
                 </div>
               </div>
@@ -126,21 +128,21 @@
       },
       // 回答を表示する処理
       showAnswer: function(e) {
-        $$(e.target).hide();
+        $$(e.target).parents('a').hide();
         $$(e.target).parents('.content').find('.answer').show();
       },
-      // 記憶したボタンを押した際の処理
-      changeToRemember: async function(e) {
-        // 対象になる単語データを取得
-        const objectId = $$(e.target).parents('a').data('object-id');
-        const word = this.words.filter(w => w.objectId === objectId)[0];
-        // 記憶完了のフラグを立てる
-        await word.set('remember', true).update();
-        // 単語数を更新
-        this.$app.methods.updateWordCount(this.wordBook);
-        // スライドを削除
-        this.swiper.removeSlide(this.swiper.activeIndex);
-      }
+      // // 記憶したボタンを押した際の処理
+      // changeToRemember: async function(e) {
+      //   // 対象になる単語データを取得
+      //   const objectId = $$(e.target).parents('a').data('object-id');
+      //   const word = this.words.filter(w => w.objectId === objectId)[0];
+      //   // 記憶完了のフラグを立てる
+      //   await word.set('remember', true).update();
+      //   // 単語数を更新
+      //   this.$app.methods.updateWordCount(this.wordBook);
+      //   // スライドを削除
+      //   this.swiper.removeSlide(this.swiper.activeIndex);
+      // }
     },
     async mounted() {
       // 学習する単語一覧を取得
@@ -163,7 +165,7 @@
       // 回答を表示する処理
       $$('.open').on('click', this.showAnswer);
       // 記憶したボタンを押した際の処理
-      $$('.remember').on('click', this.changeToRemember);
+      // $$('.remember').on('click', this.changeToRemember);
     },
   };
 </script>
@@ -175,7 +177,7 @@
     align-items: center;
   }
   .word .content {
-    height: 60vw;
+    height: 50vw;
     display: table-cell;
     vertical-align: middle;
     text-align: center;

@@ -79,14 +79,13 @@
         // 削除対象のobjectIdを取得
         const objectId = $$(e.target).data('object-id');
         this.wordBook.words.splice(objectId,1);
-        // 単語数をカウントする共通関数を実行
+        // 保存
         try {
-          await this.db.collection('WordBook').doc(this.wordBook.id)
+          await db.collection('WordBook').doc(this.wordBook.id)
             .update({
               'words': this.wordBook.words,
               'words_count': this.wordBook.words.length
             });
-          // await this.$app.methods.updateWordCount(this.wordBook);
         } catch (error) {
           console.error("Error adding document: ", error);
         }
@@ -95,16 +94,17 @@
       showWord: function(e) {
         // 対象になる単語データを取得
         const objectId = $$(e.target).parents('a').data('object-id');
-        const word = this.wordBook.words.filter((w,index) => index === objectId)[0];
+        const word = this.wordBook.words[objectId];
         // 単語がなければ終了
         if (!word) return;
         // 単語があれば移動
         this.$router.navigate(
-          `/word_books/${this.wordBook.id}/words/${word.id}/edit`,
+          `/word_books/${this.wordBook.id}/words/${objectId}/edit`,
           {
             context: {
               wordBook: this.wordBook,
-              word
+              word: word,
+              objectId: objectId
             }
           }
         );
@@ -139,7 +139,7 @@
     },
     on: {
       pageBeforeIn: async function(e, page) {
-        this.db = db;
+        // this.db = db;
         // 単語一覧を取得
         const words = this.wordBook.words;
         // 単語の有無で画面の表示を切り替え
