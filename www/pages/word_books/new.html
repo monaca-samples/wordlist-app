@@ -46,6 +46,18 @@
     methods: {
       // 単語帳を作成する処理
       saveWordBook: async function(e) {
+
+        db.collection("WordBook").add({
+            name: $$('[name="name"]').val(),
+            words_count: 0
+        })
+        .then((docRef) => {
+            console.log("Document written with ID: ", docRef.id);
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+
         const { ncmb } = this.$app.data;
         // 単語帳のインスタンスを作成
         const wordBook = new (ncmb.DataStore('WordBook'));
