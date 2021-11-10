@@ -21,7 +21,7 @@
           </div>
         </div>
         <div class="col-auto">
-          <div class="list no-hairlines-md">
+          <div class="list no-hairlines-md" style="margin: 0 0">
             <ul>
               <li class="item-content item-input">
                 <div class="item-inner">
@@ -65,8 +65,6 @@
     methods: {
       // 単語データを更新する処理
       updateWord: async function(e) {
-        console.log(this.objectId);
-        console.log(this.wordBook.words);
         this.wordBook.words[this.objectId] = {
           'original': $$('[name="original"]').val(),
           'japanese': $$('[name="japanese"]').val(),
@@ -87,21 +85,32 @@
       },
       // 写真をアップロードして、そのファイル名をhiddenに適用する処理
       uploadImage: async function(e) {
-        alert('Not implemented for firebase');
-        // // NCMBで写真アップロード
-        // const {ncmb} = this.$app.data;
-        // const d = new Date();
-        // const file = e.target.files[0];
-        // // 写真名に重複が発生しないように現在時刻をファイル名に追加
-        // const name = `${d.getTime()}_${file.name}`;
-        // // ファイルアップロード
-        // await ncmb.File.upload(name, file);
-        // // 画像データを取得（ローカルファイルのもの）
-        // const image = await this.$app.methods.loadImage(file);
-        // // 取得した画像データを表示
-        // $$('.image').attr('src', image);
-        // $$('[name="image"]').val(name);
-        // $$('.show-image').show();
+        // Firebaseで写真をアップロード
+        const d = new Date();
+        const file = e.target.files[0];
+        // 写真名に重複が発生しないように現在時刻をファイル名に追加
+        const name = `images/${d.getTime()}_${file.name}`;
+
+        var storageRef = firebase.storage().ref();
+        var uploadRef = storageRef.child(name);
+
+        const uploadTask = uploadRef.put(file);
+        uploadTask.on('state_change', (snapshot) => {
+          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+        }, (error) => {
+          console.log(error);
+          alert('Upload Error');
+        }, async () => {
+          console.log('complete');
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            console.log('File available at', downloadURL);
+            $$('.image').attr('src', downloadURL);
+            $$('[name="image"]').val(name);
+            $$('.show-image').show();
+          });
+
+        });
       }
     },
     on: {
@@ -111,6 +120,35 @@
         // NCMBから画像データをBlobで取得
         // const { ncmb } = this.$app.data;
         if (!this.word.image) return;
+
+        var storageRef = firebase.storage().ref();
+        var pathRef = storageRef.child(this.word.image);
+        
+        pathRef.getDownloadURL().then(async (url) => {
+          console.log(url);
+          $$('.image').attr('src', url);
+          $$('.show-image').show();
+          // var xhr = new XMLHttpRequest();
+          // xhr.responseType = 'blob';
+          // xhr.onload = async (event) => {
+          //   var blob = xhr.response;
+          //   const image = await this.$app.methods.loadImage(file);
+          //   // 変換結果をimgタグに反映
+          //   $$('.image').attr('src', image);
+          //   // imgタグを表示
+          //   $$('.show-image').show();
+          // };
+          // xhr.open('GET', url);
+          // xhr.send();
+
+          // // Or inserted into an <img> element:
+          // var img = document.getElementById('myimg');
+          // img.src = url;
+        }).catch(async (error) => {
+          // Handle any errors
+        });
+
+
         // const file = await ncmb.File.download(this.word.image, 'blob');
         // // BlobをdataURIに変換
         // const image = await this.$app.methods.loadImage(file);

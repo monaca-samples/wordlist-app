@@ -4,4 +4,14 @@ const clientKey = '';
 const firebaseApiKey = '';
 const firebaseAuthDomain = '';
 const firebaseProjectId = '';
+const firebaseStorageBucket = '';
 
+// example filebase storage open rules
+// rules_version = '2';
+// service firebase.storage {
+//   match /b/{bucket}/o {
+//     match /{allPaths=**} {
+//       allow read, write;
+//     }
+//   }
+// }

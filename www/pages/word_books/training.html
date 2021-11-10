@@ -44,11 +44,11 @@
       showImage: async function(fileName) {
         // ファイル名がなければ無視
         if (!fileName) return '';
-        // NCMBで画像データをダウンロード（Blobで）
-        const { ncmb } = this.$app.data;
-        const file = await ncmb.File.download(fileName, 'blob');
-        // BlobをFileReader APIでdataURI形式に変換
-        const image = await this.$app.methods.loadImage(file);
+
+        // Firebaseで画像データをダウンロード
+        var storageRef = firebase.storage().ref();
+        var pathRef = storageRef.child(fileName);
+        const image = await pathRef.getDownloadURL();
         // 画像が取得できたら表示用のHTMLを返す
         if (!image) return '';
         return `<div class="show-image">
@@ -72,7 +72,7 @@
               <div class="card-content card-content-padding word">
                 <div class="row no-gap">
                   <div class="col-10 previous">
-                    <div class="margin-vertical">${ i == 0 ? '':'《' }</div>
+                    <div class="margin-vertical">${ i == 0 ? '':'◀︎' }</div>
                   </div>
                   <div class="col-80 display-flex flex-direction-column justify-content-center content">
                     ${ images[i] }
@@ -93,7 +93,7 @@
                     </div>
                   </div>
                   <div class="col-10 next">
-                    <div class="margin-vertical">${ i == this.words.length - 1 ? '': '》' }</div>
+                    <div class="margin-vertical">${ i == this.words.length - 1 ? '': '▶︎' }</div>
                   </div>
                 </div>
               </div>
