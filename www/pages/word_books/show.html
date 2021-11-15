@@ -39,11 +39,6 @@
             <ul>
             </ul>
           </div>
-          <p>
-            <button class="button button-fill" @click="export">
-              エクスポート
-            </button>
-          </p>
         </div>
       </div>
     </div>
@@ -62,17 +57,6 @@
             }
           }
         );
-      },
-      // エクスポート処理
-      export: async function() {
-        // 単語一覧の取得
-        const words = await this.$app.methods.getWords(this.wordBook);
-        // 簡易的にCSVの作成
-        const csv = words.map(w => `"${w.original}","${w.japanese}"`).join("\n");
-        // CSVの内容をBlobに変換
-        const blob = new Blob([csv], {type: "text/csv;charset=utf-8"});
-        // ファイルとして保存
-        saveAs(blob, "words.csv");
       },
       // 単語を削除する処理
       deleteWord: async function(e) {
