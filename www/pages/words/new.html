@@ -51,8 +51,6 @@
           alert('単語がありません');
           return;
         }
-        // const relation = new ncmb.Relation;
-        // const Word = ncmb.DataStore('Word');
         // 行毎に処理
         ary.forEach((str, i) => {
           // エラーチェック
@@ -62,7 +60,6 @@
             return;
           }
           // 単語データの作成
-          // const word = new Word;
           const word = {
             'remember': false,
             'original': words[0],

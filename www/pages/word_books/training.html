@@ -131,18 +131,6 @@
         $$(e.target).parents('a').hide();
         $$(e.target).parents('.content').find('.answer').show();
       },
-      // // 記憶したボタンを押した際の処理
-      // changeToRemember: async function(e) {
-      //   // 対象になる単語データを取得
-      //   const objectId = $$(e.target).parents('a').data('object-id');
-      //   const word = this.words.filter(w => w.objectId === objectId)[0];
-      //   // 記憶完了のフラグを立てる
-      //   await word.set('remember', true).update();
-      //   // 単語数を更新
-      //   this.$app.methods.updateWordCount(this.wordBook);
-      //   // スライドを削除
-      //   this.swiper.removeSlide(this.swiper.activeIndex);
-      // }
     },
     async mounted() {
       // 学習する単語一覧を取得

@@ -117,8 +117,6 @@
       pageBeforeIn: async function(e, page) {
         // 最初にimgタグを隠す
         $$('.show-image').hide();
-        // NCMBから画像データをBlobで取得
-        // const { ncmb } = this.$app.data;
         if (!this.word.image) return;
 
         var storageRef = firebase.storage().ref();
@@ -128,34 +126,10 @@
           console.log(url);
           $$('.image').attr('src', url);
           $$('.show-image').show();
-          // var xhr = new XMLHttpRequest();
-          // xhr.responseType = 'blob';
-          // xhr.onload = async (event) => {
-          //   var blob = xhr.response;
-          //   const image = await this.$app.methods.loadImage(file);
-          //   // 変換結果をimgタグに反映
-          //   $$('.image').attr('src', image);
-          //   // imgタグを表示
-          //   $$('.show-image').show();
-          // };
-          // xhr.open('GET', url);
-          // xhr.send();
-
-          // // Or inserted into an <img> element:
-          // var img = document.getElementById('myimg');
-          // img.src = url;
         }).catch(async (error) => {
           // Handle any errors
         });
 
-
-        // const file = await ncmb.File.download(this.word.image, 'blob');
-        // // BlobをdataURIに変換
-        // const image = await this.$app.methods.loadImage(file);
-        // // 変換結果をimgタグに反映
-        // $$('.image').attr('src', image);
-        // // imgタグを表示
-        // $$('.show-image').show();
       }
     },
   };
